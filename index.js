@@ -7,6 +7,7 @@ const PORT = process.env.PORT || 3000;
 
 app.use(morgan("dev"));
 app.use(requestTimer);
+app.use(express.json());
 
 app.get("/health", (req, res) => {
     return res.status(200).json({ status: "ok" });

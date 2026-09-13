@@ -7,7 +7,13 @@ const SERVICES = [
     { id: 1, name: "api-gateway", status: SERVICE_STATUSES[0] },
     { id: 2, name: "api-middleware", status: SERVICE_STATUSES[0] },
     { id: 3, name: "api-service", status: SERVICE_STATUSES[0] },
-]
+];
+
+const { z } = require("zod");
+const createServiceSchema = z.object({
+    name: z.string().min(1).max(100),
+    status: z.enum(SERVICE_STATUSES),
+});
 
 router.get("/", (req, res) => {
     return res.status(200).json(SERVICES)
@@ -21,6 +27,18 @@ router.get("/:id", (req, res) => {
     }
 
     return res.status(200).json(service)
+})
+
+router.post("/", (req, res) => {
+    const result = createServiceSchema.safeParse(req.body);
+
+    if (!result.success) {
+        return res.status(400).json({ error: result.error.issues })
+    }
+
+    const newService = { id: SERVICES.length + 1, ...result.data };
+    SERVICES.push(newService);
+    return res.status(201).json(newService);
 })
 
 module.exports = router;
